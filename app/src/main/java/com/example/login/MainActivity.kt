@@ -12,20 +12,35 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Initialize Firebase
         FirebaseApp.initializeApp(this)
 
         setContent {
             var isLoginScreen by remember { mutableStateOf(true) }
-
+            var isHomeScreen by remember { mutableStateOf(false) }
+            var userEmail by remember { mutableStateOf("") }
             MaterialTheme {
-                if (isLoginScreen) {
-                    LoginScreen(onSignupClick = { isLoginScreen = false })
-                } else {
-                    SignupScreen(onLoginClick = { isLoginScreen = true })
+                when {
+                    isHomeScreen -> {
+                        HomeScreen(userEmail = userEmail, onLogoutClick = {
+                            isHomeScreen = false
+                            isLoginScreen = true
+                            userEmail = ""
+                        })
+                    }
+
+                    isLoginScreen -> {
+                        LoginScreen(onSignupClick = { isLoginScreen = false })
+                    }
+                    else -> {
+                        SignupScreen(
+                            onSignupSuccess = {
+                                isHomeScreen = true   // Show home screen on signup success
+                            },
+                            onLoginClick = { isLoginScreen = true }
+                        )
+                    }
                 }
             }
         }
     }
 }
-
